@@ -2,26 +2,46 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Q-Learning GridWorld – 10x10 med redigeringsläge (Samla mynt innan mål)</title>
+  <title>Q-Learning GridWorld</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 20px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
     }
-    h1 {
+    /* Hela sidan centrerad med en maxbredd */
+    .page-container {
+      max-width: 1050px;
+      margin: 0 auto;
+    }
+    /* Headern spänner över hela bredden */
+    .header-container {
+      text-align: center;
       margin-bottom: 20px;
     }
-    .container {
+    .header-container h1 {
+      margin-bottom: 10px;
+    }
+    /* Introduktionstexten spänner över hela bredden (i linje med begreppstexten) */
+    #intro {
+      width: 100%;
+      padding: 10px;
+      text-align: justify;
+      font-size: 1em;
+      line-height: 1.5;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+    }
+    /* Huvudcontainern delar upp sidan i två kolumner */
+    .main-container {
       display: flex;
       gap: 20px;
-      margin-bottom: 40px;
     }
-    .left-panel {
+    /* Vänsterkolumnen innehåller canvas, kontroller och logg */
+    .left-wrapper {
+      width: 500px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -42,7 +62,7 @@
       justify-content: center;
       margin-bottom: 5px;
     }
-    /* Ökar bredden på Q-beräkningsrutan */
+    /* Ökar bredden på Q‑beräkningsrutan */
     #calcDetails {
       margin-top: 5px;
       padding: 5px;
@@ -52,120 +72,125 @@
       background-color: #f9f9f9;
       text-align: center;
     }
-    .right-panel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+    /* Loggen placeras nu i vänsterkolumnen, under kontrollraderna */
     #logText {
-      width: 350px;
-      height: 400px;
-    }
-    #paramInfo {
+      width: 100%;
+      height: 200px;
       margin-top: 10px;
-      font-size: 1em;
-      text-align: center;
+      resize: none;
+    }
+    /* Högerkolumnen innehåller endast beskrivnings-/begreppsdelen */
+    .right-wrapper {
+      width: 500px;
     }
     #description {
-      max-width: 800px;
-      margin-top: 40px;
+      width: 100%;
       padding: 20px;
-      border-top: 1px solid #ccc;
+      border: 1px solid #ccc;
       font-size: 1em;
       line-height: 1.5;
+      box-sizing: border-box;
+      background-color: #f9f9f9;
     }
   </style>
 </head>
 <body>
-  <h1>Q-learning Grid World simulering</h1>
-  
-  <div class="container">
-    <div class="left-panel">
-      <canvas id="canvas"></canvas>
-      <div class="controls">
-        <div class="controls-row">
-          <button id="trainButton">Starta träning</button>
-          <button id="pauseButton">Pausa</button>
-          <button id="qToggleButton">Visa Q-värden: Av</button>
-          <button id="policyButton">Visa Policy: Av</button>
-          <button id="resetButton">Återställ träning</button>
-          <button id="testButton" style="display: none;">Testa Modellen</button>
-        </div>
-        <div class="controls-row">
-          <label>Simuleringshastighet:
-            <input type="range" id="speedSlider" min="0" max="5000" value="100">
-          </label>
-        </div>
-        <div class="controls-row">
-          <label>
-            <input type="checkbox" id="stepModeCheckbox">
-            Stegvis läge
-          </label>
-          <button id="nextStepButton" disabled>Nästa steg</button>
-        </div>
-        <div class="controls-row">
-          <div id="infoLabel">Episod: 0, Steg: 0</div>
-        </div>
-        <div class="controls-row">
-          <div id="calcDetails"></div>
-        </div>
-        <div class="controls-row">
-          <label>
-            <input type="checkbox" id="editModeCheckbox">
-            Redigeringsläge
-          </label>
-        </div>
-        <div class="controls-row" id="paramInfo"></div>
+  <div class="page-container">
+    <!-- Rubrik och introduktion spänner över hela bredden -->
+    <div class="header-container">
+      <h1>Q-learning Grid World simulering</h1>
+      <div id="intro">
+        <p>
+          Välkommen till denna Q-Learning GridWorld-simulering! I denna simulering tränas en agent att navigera genom en 10×10-matris för att samla in alla mynt innan den når målcellen.
+        </p>
       </div>
     </div>
-    <div class="right-panel">
-      <textarea id="logText" readonly></textarea>
+    
+    <div class="main-container">
+      <div class="left-wrapper">
+        <canvas id="canvas"></canvas>
+        <div class="controls">
+          <div class="controls-row">
+            <button id="trainButton">Starta träning</button>
+            <button id="pauseButton">Pausa</button>
+            <button id="qToggleButton">Visa Q-värden: Av</button>
+            <button id="policyButton">Visa Policy: Av</button>
+            <button id="resetButton">Återställ träning</button>
+            <button id="testButton" style="display: none;">Testa Modellen</button>
+          </div>
+          <div class="controls-row">
+            <label>Simuleringshastighet:
+              <input type="range" id="speedSlider" min="0" max="5000" value="100">
+            </label>
+          </div>
+          <div class="controls-row">
+            <label>
+              <input type="checkbox" id="stepModeCheckbox">
+              Stegvis läge
+            </label>
+            <button id="nextStepButton" disabled>Nästa steg</button>
+          </div>
+          <div class="controls-row">
+            <div id="infoLabel">Episod: 0, Steg: 0</div>
+          </div>
+          <div class="controls-row">
+            <div id="calcDetails"></div>
+          </div>
+          <div class="controls-row">
+            <label>
+              <input type="checkbox" id="editModeCheckbox">
+              Redigeringsläge
+            </label>
+          </div>
+          <div class="controls-row" id="paramInfo"></div>
+        </div>
+        <!-- Loggen flyttas hit -->
+        <textarea id="logText" readonly></textarea>
+      </div>
+      
+      <div class="right-wrapper">
+        <div id="description">
+          <p><strong>Begrepp:</strong></p>
+          <ul>
+            <li><em>State (s):</em> Tillståndet, bestående av agentens position samt den aktuella myntkonfigurationen.</li>
+            <li><em>Action (a):</em> Den valda handlingen (upp, höger, ner eller vänster).</li>
+            <li><em>Reward (r):</em> Belöningen eller straffet för en handling.</li>
+            <li><em>Next state (s'):</em> Tillståndet efter att handlingen utförts.</li>
+            <li><em>α (inlärningshastighet) &amp; γ (diskonteringsfaktor):</em> Parametrar som styr hur snabbt och med vilken vikt Q‑värdena uppdateras.</li>
+            <li><em>ε (epsilon):</em> Sannolikheten att agenten väljer en slumpmässig handling (utforskning) istället för den bästa kända handlingen (exploatering).</li>
+          </ul>
+          <p><strong>Miljö och belöningssystem:</strong></p>
+          <ul>
+            <li><em>Agentens position:</em> Startar längst ner till vänster (kan ändras i redigeringsläget).</li>
+            <li><em>Mål:</em> Grön ruta. Placerat längst upp till höger (kan ändras i redigeringsläget). Om agenten når målet utan att ha samlat alla mynt ges ett straff på -20.</li>
+            <li><em>Mynt:</em> Gul cirkel. Varje mynt ger agenten en extra belöning på +10 poäng när det samlas in.</li>
+            <li><em>Stegstraff:</em> Varje steg kostar -0.1, vilket uppmuntrar till kortare vägar.</li>
+          </ul>
+          <p><strong>Rutornas färg ändras baserat på Q‑värden:</strong></p>
+          <ul>
+            <li>Ju lägre Q-värde en cell har desto rödare blir den – vilket indikerar sämre prestanda.</li>
+            <li>Ju högre Q-värde en cell har desto blåare blir den– vilket indikerar bättre prestanda.</li>
+            <li>Genom att klicka i "Visa Q-värden" kan du se aktuella Q-värden för samtliga actions i varje ruta.</li>
+          </ul>
+          <p><strong>Redigeringsläge:</strong></p>
+          <ul>
+            <li>När redigeringsläget är aktivt kan du:
+              <ul>
+                <li>Lägga till eller ta bort hinder med vänsterklick.</li>
+                <li>Lägga till eller ta bort mynt med högerklick.</li>
+                <li>Flytta start- och målceller genom att dra och släppa dem.</li>
+                <li>Redigera värdena för α, γ och ε för att se hur olika parametrar påverkar inlärningen.</li>
+              </ul>
+            </li>
+          </ul>
+          <p><strong>Övrigt:</strong></p>
+          <ul>
+            <li>När modellen har konvergerat ("tränats klart") kan du välja att "Visa Policy" för att se bästa action i respektive ruta.</li>
+            <li>I stegvis läge visas en ruta för Q‑värdesberäkningen.</li>
+          </ul>
+        </div>
+      </div>
     </div>
-  </div>
-<p>
-  <strong>Instruktioner:</strong> Välkommen till denna Q-Learning GridWorld-simulering! I denna simulering tränas en agent att navigera genom en 10×10-matris med syfte att samla in alla mynt innan den når målcellen. Genom att experimentera med olika parametrar (α, γ, ε) samt genom att anpassa miljön i redigeringsläget, kan du observera hur agentens Q‑värden utvecklas och hur dess policy förändras. Läs vidare för en översikt av begreppen och funktionerna i simuleringen.
-</p>
-
-  <div id="description">
-    <p><strong>Begrepp:</strong></p>
-    <ul>
-      <li><em>State (s):</em> Tillståndet, bestående av agentens position samt den aktuella myntkonfigurationen.</li>
-      <li><em>Action (a):</em> Den valda handlingen (upp, höger, ner eller vänster).</li>
-      <li><em>Reward (r):</em> Belöningen eller straffet för en handling.</li>
-      <li><em>Next state (s'):</em> Tillståndet efter att handlingen utförts.</li>
-      <li><em>α (inlärningshastighet) &amp; γ (diskonteringsfaktor):</em> Parametrar som styr hur snabbt och med vilken vikt Q‑värdena uppdateras.</li>
-      <li><em>ε (epsilon):</em> Sannolikheten att agenten väljer en slumpmässig handling (utforskning) istället för den bästa kända handlingen (exploatering).</li>
-    </ul>
-    <p><strong>Miljö och belöningssystem:</strong></p>
-    <ul>
-      <li><em>Agentens position:</em> Startar längst ner till vänster (kan ändras i redigeringsläget).</li>
-      <li><em>Mål:</em> Grön ruta. Placerat längst upp till höger (kan ändras i redigeringsläget). Om agenten når målet utan att ha samlat alla mynt ges ett straff på -20.</li>
-      <li><em>Mynt:</em> Gul cirkel. Varje mynt ger agenten en extra belöning på +10 poäng när det samlas in.</li>
-      <li><em>Stegstraff:</em> Varje steg kostar -0.1, vilket uppmuntrar till kortare vägar.</li>
-    </ul>
-    <p><strong>Rutornas färg ändras baserat på Q‑värden:</strong></p>
-    <ul>
-      <li>Vid Q=5 (standard) blir cellen vit.</li>
-      <li>Om Q är lägre än 5 blir cellen rödare – vilket indikerar sämre prestanda.</li>
-      <li>Om Q är högre än 5 blir cellen blåare – vilket indikerar bättre prestanda.</li>
-    </ul>
-    <p><strong>Redigeringsläge:</strong></p>
-    <ul>
-      <li>När redigeringsläget är aktivt kan du:
-        <ul>
-          <li>Lägga till eller ta bort hinder med vänsterklick.</li>
-          <li>Lägga till eller ta bort mynt med högerklick.</li>
-          <li>Flytta start- och målceller genom att dra och släppa dem.</li>
-	  <li>Redigera värdena för α, γ och ε för att se hur olika värden påverkar inlärningen.</li>
-        </ul>
-      </li>
-  
-    </ul>
-    <p><strong>Övrigt:</strong></p>
-    <ul>
-      <li>När modellen har konvergerat ("tränats klart") kan du välja att "Visa Policy" för att se bästa action i respektive ruta.</li>
-      <li>I stegvis läge visas en ruta för Q‑värdesberäkningen.</li>
-    </ul>
   </div>
 
   <script>
@@ -390,7 +415,7 @@ $$`;
         this.updateParamInfo();
         
         this.trainButton.addEventListener("click", () => {
-          // När träning startas, döljs policy-visningen (pilarna)
+          // När träning startas, döljs policy (pilarna)
           this.showPolicy = false;
           this.policyButton.style.display = "none";
           this.startTraining();
@@ -600,8 +625,8 @@ $$`;
               if (t <= 0.5) {
                 const factor = Math.sqrt(t / 0.5);
                 const R = 255;
-                const G = Math.round(0 + factor * 255);
-                const B = Math.round(0 + factor * 255);
+                const G = Math.round(factor * 255);
+                const B = Math.round(factor * 255);
                 fillColor = `rgb(${R},${G},${B})`;
               } else {
                 const factor = Math.sqrt((t - 0.5) / 0.5);
