@@ -92,6 +92,18 @@
       box-sizing: border-box;
       background-color: #f9f9f9;
     }
+    /* Tooltip för Q-värden vid hover */
+    #hoverInfo {
+      position: absolute;
+      background-color: #fff;
+      border: 1px solid #888;
+      padding: 5px;
+      font-size: 0.9em;
+      display: none;
+      pointer-events: none;
+      z-index: 100;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    }
   </style>
 </head>
 <body>
@@ -169,8 +181,9 @@
           <p><strong>Rutornas färg ändras baserat på Q‑värden:</strong></p>
           <ul>
             <li>Ju lägre Q-värde en cell har desto rödare blir den – vilket indikerar sämre prestanda.</li>
-            <li>Ju högre Q-värde en cell har desto blåare blir den– vilket indikerar bättre prestanda.</li>
+            <li>Ju högre Q-värde en cell har desto blåare blir den – vilket indikerar bättre prestanda.</li>
             <li>Genom att klicka i "Visa Q-värden" kan du se aktuella Q-värden för samtliga actions i varje ruta.</li>
+            <li>Om du håller muspekaren över en cell visas de aktuella Q-värdena för den cellen.</li>
           </ul>
           <p><strong>Redigeringsläge:</strong></p>
           <ul>
@@ -192,6 +205,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Tooltip-element för att visa Q-värden vid hover -->
+  <div id="hoverInfo"></div>
 
   <script>
     function getCoinKeyFrom(coinsArray) {
@@ -477,6 +493,10 @@ $$`;
         this.canvas.addEventListener("contextmenu", (e) => this.onCanvasRightClick(e));
         this.testButton.addEventListener("click", () => this.startTestMode());
         
+        // Lägg till hover-funktionalitet – visa tooltip med Q-värden (om vi INTE är i redigeringsläge)
+        this.canvas.addEventListener("mousemove", (e) => this.handleHover(e));
+        this.canvas.addEventListener("mouseout", (e) => this.hideHover(e));
+        
         this.drawGrid();
         this.drawAgent();
         this.updateInfoLabel();
@@ -605,6 +625,51 @@ $$`;
         this.initialCoins = JSON.parse(JSON.stringify(this.coins));
         this.drawGrid();
         this.drawAgent();
+      }
+      // Metod för att hantera hover – visar Q-värden i tooltip
+      handleHover(e) {
+        // Om vi är i redigeringsläge, döljs tooltipen
+        if (this.editMode) {
+          this.hideHover();
+          return;
+        }
+        // Om vi drar, döljs tooltipen
+        if (this.draggingStart || this.draggingGoal) {
+          this.hideHover();
+          return;
+        }
+        const rect = this.canvas.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+        const cellX = Math.floor(mouseX / this.cellSize);
+        const cellY = this.gridHeight - 1 - Math.floor(mouseY / this.cellSize);
+        // Kontrollera att vi är inom rutnätet
+        if (cellX < 0 || cellX >= this.gridWidth || cellY < 0 || cellY >= this.gridHeight) {
+          this.hideHover();
+          return;
+        }
+        // Hämta Q-värden för denna cell med aktuell myntkonfiguration
+        const coinKey = this.getCoinKey();
+        const actions = [0, 1, 2, 3];
+        const mapping = {0: "Upp", 1: "Höger", 2: "Ner", 3: "Vänster"};
+        let tooltipText = "";
+        for (let action of actions) {
+          const key = `${cellX},${cellY},${coinKey},${action}`;
+          let qVal = this.agent.Q[key];
+          if (qVal === undefined) {
+            qVal = INITIAL_Q;
+          }
+          tooltipText += `${mapping[action]}: ${qVal.toFixed(2)}<br>`;
+        }
+        const hoverDiv = document.getElementById("hoverInfo");
+        hoverDiv.innerHTML = tooltipText;
+        hoverDiv.style.left = (e.clientX + 10) + "px";
+        hoverDiv.style.top = (e.clientY + 10) + "px";
+        hoverDiv.style.display = "block";
+      }
+      hideHover() {
+        const hoverDiv = document.getElementById("hoverInfo");
+        hoverDiv.style.display = "none";
       }
       drawGrid() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
