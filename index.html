@@ -2,7 +2,7 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8">
-  <title>Q-Learning GridWorld</title>
+  <title>Q-Learning Simuering</title>
   <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
   <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
   <style>
@@ -15,7 +15,7 @@
       max-width: 1050px;
       margin: 0 auto;
     }
-    /* Headern spänner över hela bredden */
+    /* Header */
     .header-container {
       text-align: center;
       margin-bottom: 20px;
@@ -23,7 +23,7 @@
     .header-container h1 {
       margin-bottom: 10px;
     }
-    /* Introduktionstexten spänner över hela bredden (i linje med begreppstexten) */
+    /* Introduktionstext */
     #intro {
       width: 100%;
       padding: 10px;
@@ -34,7 +34,7 @@
       border: 1px solid #ccc;
       background-color: #f9f9f9;
     }
-    /* Huvudcontainern delar upp sidan i två kolumner */
+   
     .main-container {
       display: flex;
       gap: 20px;
@@ -62,7 +62,7 @@
       justify-content: center;
       margin-bottom: 5px;
     }
-    /* Ökar bredden på Q‑beräkningsrutan */
+    /* bredden på Q‑beräkningsrutan */
     #calcDetails {
       margin-top: 5px;
       padding: 5px;
@@ -72,14 +72,14 @@
       background-color: #f9f9f9;
       text-align: center;
     }
-    /* Loggen placeras nu i vänsterkolumnen, under kontrollraderna */
+   
     #logText {
       width: 100%;
       height: 200px;
       margin-top: 10px;
       resize: none;
     }
-    /* Högerkolumnen innehåller endast beskrivnings-/begreppsdelen */
+   
     .right-wrapper {
       width: 500px;
     }
@@ -110,10 +110,10 @@
   <div class="page-container">
     <!-- Rubrik och introduktion spänner över hela bredden -->
     <div class="header-container">
-      <h1>Q-learning Grid World simulering</h1>
+      <h1>Q-learning simulering</h1>
       <div id="intro">
         <p>
-          Välkommen till denna Q-Learning GridWorld-simulering! I denna simulering tränas en agent att navigera genom en 10×10-matris och samla in alla mynt innan den når målcellen.
+          Välkommen till denna Q-Learning simulering! I denna simulering tränas en agent att navigera genom en 10×10-matris till att samla in alla mynt och sedan ta sig till målcellen.
         </p>
       </div>
     </div>
@@ -173,8 +173,8 @@
           </ul>
           <p><strong>Miljö och belöningssystem:</strong></p>
           <ul>
-            <li><em>Agenten:</em> Orange cirkel. Startar längst ner till vänster (kan ändras i redigeringsläget).</li>
-            <li><em>Mål:</em> Grön ruta. Placerat längst upp till höger (kan ändras i redigeringsläget). Om agenten når målet utan att ha samlat alla mynt ges ett straff på -20.</li>
+            <li><em>Agenten:</em> Orange cirkel. Startar längst ner till vänster.</li>
+            <li><em>Mål:</em> Grön ruta. Om agenten når målet utan att ha samlat alla mynt ges ett straff på -20.</li>
             <li><em>Mynt:</em> Gul cirkel. Varje mynt ger agenten en extra belöning på +10 poäng när det samlas in.</li>
             <li><em>Stegstraff:</em> Varje steg kostar -0.1, vilket uppmuntrar till kortare vägar.</li>
           </ul>
@@ -216,10 +216,10 @@
       return coinsCopy.map(c => c[0] + "_" + c[1]).join(";");
     }
 
-    // Standardvärden för mynt: endast i (0,9), (3,3), (9,0) och (7,7)
+    // Standardvärden för mynt: 
     const defaultCoins = [[0,9], [3,3], [9,0], [7,7]];
 
-    // Custom obstacles: väggar endast i:
+    // Standardvärden för väggar:
     // (0,8), (1,8), (2,2), (2,3), (2,4), (3,2), (3,6), (4,4), (4,5), (4,6), (4,8),
     // (5,3), (5,4), (5,8), (6,4), (6,6), (6,8), (7,6), (7,8), (8,1), (8,6), (8,7), (8,8), (9,1)
     const customObstacles = [
@@ -856,7 +856,7 @@ $$`;
         this.running = true;
         this.testMode = false;
         this.paused = false;
-        // När träning startas, döljs policy (pilarna)
+        // När träning startas, döljs policy-pilarna
         this.showPolicy = false;
         this.policyButton.style.display = "none";
         this.updateParamInfo();
