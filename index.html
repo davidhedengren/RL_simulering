@@ -139,7 +139,7 @@
         <div id="description">
           <p><strong>Begrepp:</strong></p>
           <ul>
-            <li><em>State (s):</em> Tillståndet, bestående av agentens position samt den aktuella myntkonfigurationen.</li>
+            <li><em>State (s):</em> Agentens tillstånd, bestående av dess position samt den aktuella konfigurationen av åtestående mynt. (0,0,09,33 innebär att agenten är i cell (0,0) och har kvar mynt i cellerna (0,9) och (3,3)</li>
             <li><em>Action (a):</em> Den valda handlingen (upp, höger, ner eller vänster).</li>
             <li><em>Reward (r):</em> Belöningen eller straffet för en handling.</li>
             <li><em>Next state (s'):</em> Tillståndet efter att handlingen utförts.</li>
@@ -695,7 +695,7 @@ $$`;
         this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         this.ctx.font = "12px Arial";
         this.ctx.textAlign = "right";
-        this.ctx.fillText("skapad av David Hedengren", this.canvas.width - 5, this.canvas.height - 5);
+        this.ctx.fillText("Skapad av David Hedengren", this.canvas.width - 5, this.canvas.height - 5);
       }
       drawPolicy() {
         const arrowMapping = {0: "↑", 1: "→", 2: "↓", 3: "←"};
