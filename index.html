@@ -57,15 +57,6 @@
       justify-content: center;
       margin-bottom: 5px;
     }
-    #calcDetails {
-      margin-top: 5px;
-      padding: 5px;
-      border: 1px solid #ccc;
-      width: 100%;
-      font-size: 0.9em;
-      background-color: #f9f9f9;
-      text-align: center;
-    }
     #logText {
       width: 100%;
       height: 200px;
@@ -107,7 +98,6 @@
         </p>
       </div>
     </div>
-    
     <div class="main-container">
       <div class="left-wrapper">
         <canvas id="canvas"></canvas>
@@ -136,9 +126,6 @@
             <div id="infoLabel">Episod: 0, Steg: 0</div>
           </div>
           <div class="controls-row">
-            <div id="calcDetails"></div>
-          </div>
-          <div class="controls-row">
             <label>
               <input type="checkbox" id="editModeCheckbox">
               Redigeringsläge
@@ -148,12 +135,11 @@
         </div>
         <textarea id="logText" readonly></textarea>
       </div>
-      
       <div class="right-wrapper">
         <div id="description">
           <p><strong>Begrepp:</strong></p>
           <ul>
-            <li><em>State (s):</em> Agentens tillstånd, bestående av dess position samt de aktuella återstående mynten. (0,0,09,33,37 betyder att agenten befinner sig i cellen (0,0) och har kvar 3 mynt (i (0,9), (3,3) och (3,7))</li>
+            <li><em>State (s):</em> Tillståndet, bestående av agentens position samt den aktuella myntkonfigurationen.</li>
             <li><em>Action (a):</em> Den valda handlingen (upp, höger, ner eller vänster).</li>
             <li><em>Reward (r):</em> Belöningen eller straffet för en handling.</li>
             <li><em>Next state (s'):</em> Tillståndet efter att handlingen utförts.</li>
@@ -188,15 +174,14 @@
           <p><strong>Övrigt:</strong></p>
           <ul>
             <li>När modellen har konvergerat ("tränats klart") kan du välja att "Visa Policy" för att se bästa action i respektive ruta.</li>
-            <li>I stegvis läge visas en ruta för Q‑värdesberäkningen.</li>
+            <li>I loggen visas beräkningen för uppdateringen av Q-värdet i cellen för varje steg, enligt formeln: 
+              $$ Q(s,a) = Q(s,a) + \alpha \Bigl( r + \gamma \max_{a'} Q(s',a') - Q(s,a) \Bigr) $$</li>
           </ul>
         </div>
       </div>
     </div>
   </div>
-
   <div id="hoverInfo"></div>
-
   <script>
     function getCoinKeyFrom(coinsArray) {
       let coinsCopy = coinsArray.slice();
@@ -394,7 +379,6 @@ $$`;
         this.nextStepButton = document.getElementById("nextStepButton");
         this.editModeCheckbox = document.getElementById("editModeCheckbox");
         this.infoLabel = document.getElementById("infoLabel");
-        this.calcDetails = document.getElementById("calcDetails");
         this.logText = document.getElementById("logText");
         this.paramInfo = document.getElementById("paramInfo");
         this.testButton = document.getElementById("testButton");
@@ -750,10 +734,6 @@ $$`;
       updateInfoLabel() {
         this.infoLabel.textContent = "Episod: " + this.episode + ", Steg: " + this.stepCount;
       }
-      updateCalcDetails(details) {
-        this.calcDetails.innerText = details;
-        MathJax.typesetPromise([this.calcDetails]);
-      }
       toggleQValues() {
         this.showQValues = !this.showQValues;
         this.qToggleButton.textContent = this.showQValues ? "Visa Q-värden: På" : "Visa Q-värden: Av";
@@ -786,8 +766,6 @@ $$`;
         this.drawGrid();
         this.drawAgent();
         this.updateInfoLabel();
-        this.updateCalcDetails("");
-        this.updateParamInfo();
       }
       resetEpisode() {
         this.state = this.startPos.slice();
@@ -846,12 +824,8 @@ $$`;
           nextStatePos = this.state;
         }
         this.log("Steg " + this.stepCount + ": (" + this.state[0] + "," + this.state[1] + ") -> (" + nextStatePos[0] + "," + nextStatePos[1] + ") med action " + action + ", reward " + totalReward.toFixed(2));
-        let calcStr = "";
-        const nextAvailableActions = this.env.getActions(nextStatePos);
-        const nextStateCombined = [nextStatePos[0], nextStatePos[1], this.getCoinKey()];
-        calcStr = this.agent.update(currentState, action, totalReward, nextStateCombined, nextAvailableActions);
+        let calcStr = this.agent.update(currentState, action, totalReward, [nextStatePos[0], nextStatePos[1], this.getCoinKey()], this.env.getActions(nextStatePos));
         let plainCalcStr = calcStr.replace(/\$\$/g, "")
-          .replace(/\n/g, " ")
           .replace(/\\bigl\(/g, "(")
           .replace(/\\bigr\)/g, ")")
           .replace(/\\text\{([^}]+)\}/g, "$1")
@@ -862,11 +836,6 @@ $$`;
           .replace(/\\,/g, ",")
           .trim();
         this.log("Uppdatering av Q-värde för (" + currentState[0] + "," + currentState[1] + "): " + plainCalcStr);
-        if (this.stepMode) {
-          this.updateCalcDetails(calcStr);
-        } else {
-          this.updateCalcDetails("");
-        }
         this.state = nextStatePos;
         this.stepCount++;
         if ((result.done && this.coins.length === 0) || this.stepCount >= this.maxSteps) {
