@@ -153,7 +153,7 @@
         <div id="description">
           <p><strong>Begrepp:</strong></p>
           <ul>
-            <li><em>State (s):</em> Tillståndet, bestående av agentens position samt den aktuella myntkonfigurationen.</li>
+            <li><em>State (s):</em> Agentens tillstånd, bestående av dess position samt de aktuella återstående mynten. (0,0,09,33,37 betyder att agenten befinner sig i cellen (0,0) och har kvar 3 mynt (i (0,9), (3,3) och (3,7))</li>
             <li><em>Action (a):</em> Den valda handlingen (upp, höger, ner eller vänster).</li>
             <li><em>Reward (r):</em> Belöningen eller straffet för en handling.</li>
             <li><em>Next state (s'):</em> Tillståndet efter att handlingen utförts.</li>
@@ -333,8 +333,7 @@
         const mapping = {0: "Upp", 1: "Höger", 2: "Ner", 3: "Vänster"};
         return `$$
 Q\\bigl((${state[0]},${state[1]},${state[2]}),\\;\\text{${mapping[action]}}\\bigr)
-= ${oldQ.toFixed(2)} + ${this.alpha.toFixed(2)} \\Bigl( ${reward.toFixed(2)} + ${this.gamma.toFixed(2)} \\cdot ${maxQNext.toFixed(2)} - ${oldQ.toFixed(2)} \\Bigr)
-= ${newQ.toFixed(2)}
+= ${oldQ.toFixed(2)} + ${this.alpha.toFixed(2)} \\Bigl( ${reward.toFixed(2)} + ${this.gamma.toFixed(2)} \\cdot ${maxQNext.toFixed(2)} - ${oldQ.toFixed(2)} \\Bigr)  = ${newQ.toFixed(2)}
 $$`;
       }
       getMaxQ(state, availableActions) {
@@ -712,7 +711,7 @@ $$`;
         this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
         this.ctx.font = "12px Arial";
         this.ctx.textAlign = "right";
-        this.ctx.fillText("Skapad av David Hedengren", this.canvas.width - 5, this.canvas.height - 5);
+        this.ctx.fillText("skapad av David Hedengren", this.canvas.width - 5, this.canvas.height - 5);
       }
       drawPolicy() {
         const arrowMapping = {0: "↑", 1: "→", 2: "↓", 3: "←"};
@@ -851,6 +850,18 @@ $$`;
         const nextAvailableActions = this.env.getActions(nextStatePos);
         const nextStateCombined = [nextStatePos[0], nextStatePos[1], this.getCoinKey()];
         calcStr = this.agent.update(currentState, action, totalReward, nextStateCombined, nextAvailableActions);
+        let plainCalcStr = calcStr.replace(/\$\$/g, "")
+          .replace(/\n/g, " ")
+          .replace(/\\bigl\(/g, "(")
+          .replace(/\\bigr\)/g, ")")
+          .replace(/\\text\{([^}]+)\}/g, "$1")
+          .replace(/\\Bigl\(/g, "(")
+          .replace(/\\Bigr\)/g, ")")
+          .replace(/\\cdot/g, "*")
+          .replace(/\\;/g, " ")
+          .replace(/\\,/g, ",")
+          .trim();
+        this.log("Uppdatering av Q-värde för (" + currentState[0] + "," + currentState[1] + "): " + plainCalcStr);
         if (this.stepMode) {
           this.updateCalcDetails(calcStr);
         } else {
