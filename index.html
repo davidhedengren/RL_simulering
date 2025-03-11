@@ -10,12 +10,10 @@
       font-family: Arial, sans-serif;
       margin: 20px;
     }
-    /* Hela sidan centrerad med en maxbredd */
     .page-container {
       max-width: 1050px;
       margin: 0 auto;
     }
-    /* Header */
     .header-container {
       text-align: center;
       margin-bottom: 20px;
@@ -23,7 +21,6 @@
     .header-container h1 {
       margin-bottom: 10px;
     }
-    /* Introduktionstext */
     #intro {
       width: 100%;
       padding: 10px;
@@ -34,12 +31,10 @@
       border: 1px solid #ccc;
       background-color: #f9f9f9;
     }
-   
     .main-container {
       display: flex;
       gap: 20px;
     }
-    /* Vänsterkolumnen innehåller canvas, kontroller och logg */
     .left-wrapper {
       width: 500px;
       display: flex;
@@ -62,7 +57,6 @@
       justify-content: center;
       margin-bottom: 5px;
     }
-    /* bredden på Q‑beräkningsrutan */
     #calcDetails {
       margin-top: 5px;
       padding: 5px;
@@ -72,14 +66,12 @@
       background-color: #f9f9f9;
       text-align: center;
     }
-   
     #logText {
       width: 100%;
       height: 200px;
       margin-top: 10px;
       resize: none;
     }
-   
     .right-wrapper {
       width: 500px;
     }
@@ -92,7 +84,6 @@
       box-sizing: border-box;
       background-color: #f9f9f9;
     }
-    /* Tooltip för Q-värden vid hover */
     #hoverInfo {
       position: absolute;
       background-color: #fff;
@@ -108,7 +99,6 @@
 </head>
 <body>
   <div class="page-container">
-    <!-- Rubrik och introduktion spänner över hela bredden -->
     <div class="header-container">
       <h1>Q-learning simulering</h1>
       <div id="intro">
@@ -156,7 +146,6 @@
           </div>
           <div class="controls-row" id="paramInfo"></div>
         </div>
-        <!-- Loggen flyttas hit -->
         <textarea id="logText" readonly></textarea>
       </div>
       
@@ -206,7 +195,6 @@
     </div>
   </div>
 
-  <!-- Tooltip-element för att visa Q-värden vid hover -->
   <div id="hoverInfo"></div>
 
   <script>
@@ -215,13 +203,7 @@
       coinsCopy.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
       return coinsCopy.map(c => c[0] + "_" + c[1]).join(";");
     }
-
-    // Standardvärden för mynt: 
     const defaultCoins = [[0,9], [3,3], [9,0], [7,7]];
-
-    // Standardvärden för väggar:
-    // (0,8), (1,8), (2,2), (2,3), (2,4), (3,2), (3,6), (4,4), (4,5), (4,6), (4,8),
-    // (5,3), (5,4), (5,8), (6,4), (6,6), (6,8), (7,6), (7,8), (8,1), (8,6), (8,7), (8,8), (9,1)
     const customObstacles = [
       [0,8], [1,8],
       [2,2], [2,3], [2,4],
@@ -233,7 +215,6 @@
       [8,1], [8,6], [8,7], [8,8],
       [9,1]
     ];
-
     const GRID_WIDTH = 10;
     const GRID_HEIGHT = 10;
     const CELL_SIZE = 50;
@@ -244,7 +225,6 @@
     const INITIAL_Q = 5.0;
     const EPSILON_DECAY = 0.995;
     const MIN_EPSILON = 0.01;
-
     class GridWorld {
       constructor(width, height) {
         this.width = width;
@@ -294,7 +274,6 @@
         this.goal = [this.width - 1, this.height - 1];
       }
     }
-
     class QLearningAgent {
       constructor(width, height, actions, learningRate = 0.5, discount = 0.95, epsilon = 0.3) {
         this.width = width;
@@ -368,19 +347,16 @@ $$`;
         return this.consecutiveSmallUpdates >= this.requiredSmallUpdates;
       }
     }
-
     class QLearningSimulation {
       constructor() {
-        this.mode = "idle"; // Startar i viloläge
+        this.mode = "idle";
         this.gridWidth = GRID_WIDTH;
         this.gridHeight = GRID_HEIGHT;
         this.cellSize = CELL_SIZE;
         this.env = new GridWorld(this.gridWidth, this.gridHeight);
-        // Start- och målpositioner (drag & drop)
         this.startPos = [0, 0];
         this.goalPos = [this.gridWidth - 1, this.gridHeight - 1];
         this.env.goal = this.goalPos.slice();
-        // Initiera agenten med aktuella parametrar från inmatning (om de finns)
         let alphaVal = parseFloat(document.getElementById("alphaParam") ? document.getElementById("alphaParam").value : 0.5) || 0.5;
         let gammaVal = parseFloat(document.getElementById("gammaParam") ? document.getElementById("gammaParam").value : 0.95) || 0.95;
         let epsilonVal = parseFloat(document.getElementById("epsilonParam") ? document.getElementById("epsilonParam").value : 0.3) || 0.3;
@@ -389,14 +365,12 @@ $$`;
         this.episode = 0;
         this.stepCount = 0;
         this.maxSteps = 500;
-        // Delay-beräkning
         this.delay = Math.max(0, 1000 - parseInt(document.getElementById("speedSlider").value) / 5);
-        this.running = false; // Startar inte automatiskt
+        this.running = false;
         this.paused = false;
         this.editMode = false;
         this.stepMode = false;
         this.lastUpdateTime = null;
-        // Använd redigerade mynt – sparas i initialCoins
         this.coins = JSON.parse(JSON.stringify(defaultCoins));
         this.initialCoins = JSON.parse(JSON.stringify(defaultCoins));
         this.showPolicy = false;
@@ -404,10 +378,8 @@ $$`;
         this.testMode = false;
         this.testPath = [];
         this.currentTestStep = 0;
-        // Drag & drop-variabler för start och mål
         this.draggingStart = false;
         this.draggingGoal = false;
-        
         this.canvas = document.getElementById("canvas");
         this.ctx = this.canvas.getContext("2d");
         this.canvas.width = this.gridWidth * this.cellSize;
@@ -417,7 +389,6 @@ $$`;
         this.resetButton = document.getElementById("resetButton");
         this.qToggleButton = document.getElementById("qToggleButton");
         this.policyButton = document.getElementById("policyButton");
-        // Döljer "Visa Policy" knappen från start
         this.policyButton.style.display = "none";
         this.speedSlider = document.getElementById("speedSlider");
         this.stepModeCheckbox = document.getElementById("stepModeCheckbox");
@@ -429,9 +400,7 @@ $$`;
         this.paramInfo = document.getElementById("paramInfo");
         this.testButton = document.getElementById("testButton");
         this.updateParamInfo();
-        
         this.trainButton.addEventListener("click", () => {
-          // När träning startas, döljs policy (pilarna)
           this.showPolicy = false;
           this.policyButton.style.display = "none";
           this.startTraining();
@@ -441,7 +410,6 @@ $$`;
         this.qToggleButton.addEventListener("click", () => this.toggleQValues());
         this.policyButton.addEventListener("click", () => this.togglePolicy());
         this.speedSlider.addEventListener("input", (e) => this.updateSpeed(e));
-        
         this.editModeCheckbox.addEventListener("change", (e) => {
           this.editMode = e.target.checked;
           this.updateParamInfo();
@@ -460,13 +428,12 @@ $$`;
             this.episode = 0;
             this.stepCount = 0;
             this.state = this.startPos.slice();
-            this.mode = "idle"; // Startar inte automatiskt
+            this.mode = "idle";
             this.log("Redigeringsläge avaktiverat. Tryck 'Starta träning' för att starta.");
             this.drawGrid();
             this.drawAgent();
           }
         });
-        
         this.stepModeCheckbox.addEventListener("change", (e) => {
           this.stepMode = e.target.checked;
           if (this.stepMode) {
@@ -483,26 +450,19 @@ $$`;
           }
         });
         this.nextStepButton.addEventListener("click", () => this.runStep());
-        
-        // Drag & drop för start och mål
         this.canvas.addEventListener("mousedown", (e) => this.handleMouseDown(e));
         this.canvas.addEventListener("mousemove", (e) => this.handleMouseMove(e));
         this.canvas.addEventListener("mouseup", (e) => this.handleMouseUp(e));
-        
         this.canvas.addEventListener("click", (e) => this.onCanvasClick(e));
         this.canvas.addEventListener("contextmenu", (e) => this.onCanvasRightClick(e));
         this.testButton.addEventListener("click", () => this.startTestMode());
-        
-        // Lägg till hover-funktionalitet – visa tooltip med Q-värden (om vi INTE är i redigeringsläge)
         this.canvas.addEventListener("mousemove", (e) => this.handleHover(e));
         this.canvas.addEventListener("mouseout", (e) => this.hideHover(e));
-        
         this.drawGrid();
         this.drawAgent();
         this.updateInfoLabel();
         requestAnimationFrame((ts) => this.simulationLoop(ts));
       }
-      
       getCoinKey() {
         let coinsCopy = this.coins.slice();
         coinsCopy.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
@@ -621,19 +581,15 @@ $$`;
           this.coins.push([x, y]);
           this.log("Mynt tillagt vid (" + x + "," + y + ")");
         }
-        // Uppdatera sparade mynt så att redigeringen bevaras
         this.initialCoins = JSON.parse(JSON.stringify(this.coins));
         this.drawGrid();
         this.drawAgent();
       }
-      // Metod för att hantera hover – visar Q-värden i tooltip
       handleHover(e) {
-        // Om vi är i redigeringsläge, döljs tooltipen
         if (this.editMode) {
           this.hideHover();
           return;
         }
-        // Om vi drar, döljs tooltipen
         if (this.draggingStart || this.draggingGoal) {
           this.hideHover();
           return;
@@ -643,12 +599,10 @@ $$`;
         const mouseY = e.clientY - rect.top;
         const cellX = Math.floor(mouseX / this.cellSize);
         const cellY = this.gridHeight - 1 - Math.floor(mouseY / this.cellSize);
-        // Kontrollera att vi är inom rutnätet
         if (cellX < 0 || cellX >= this.gridWidth || cellY < 0 || cellY >= this.gridHeight) {
           this.hideHover();
           return;
         }
-        // Hämta Q-värden för denna cell med aktuell myntkonfiguration
         const coinKey = this.getCoinKey();
         const actions = [0, 1, 2, 3];
         const mapping = {0: "Upp", 1: "Höger", 2: "Ner", 3: "Vänster"};
@@ -685,7 +639,6 @@ $$`;
             } else {
               const availableActions = this.env.getActions([x, y]);
               const maxQ = this.agent.getMaxQ([x, y, this.getCoinKey()], availableActions);
-              // Använd sqrt-interpolering för att öka andelen blå celler vid högre Q
               const t = Math.max(0, Math.min(maxQ, 10)) / 10;
               if (t <= 0.5) {
                 const factor = Math.sqrt(t / 0.5);
@@ -731,7 +684,6 @@ $$`;
             }
           }
         }
-        // Rita start- och målmarkörer i redigeringsläge
         if (this.editMode) {
           let startX = this.startPos[0] * this.cellSize + this.cellSize/2;
           let startY = (this.gridHeight - 1 - this.startPos[1]) * this.cellSize + this.cellSize/2;
@@ -749,7 +701,6 @@ $$`;
           this.ctx.fill();
           this.ctx.strokeStyle = "white";
           this.ctx.stroke();
-          // Rita ett semi-transparent grått överlägg med texten "REDIGERINGSLÄGE"
           this.ctx.fillStyle = "rgba(128, 128, 128, 0.3)";
           this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
           this.ctx.fillStyle = "red";
@@ -758,6 +709,10 @@ $$`;
           this.ctx.fillText("REDIGERINGSLÄGE", this.canvas.width / 2, 30);
         }
         if (this.showPolicy) { this.drawPolicy(); }
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+        this.ctx.font = "12px Arial";
+        this.ctx.textAlign = "right";
+        this.ctx.fillText("Skapad av David Hedengren", this.canvas.width - 5, this.canvas.height - 5);
       }
       drawPolicy() {
         const arrowMapping = {0: "↑", 1: "→", 2: "↓", 3: "←"};
@@ -856,7 +811,6 @@ $$`;
         this.running = true;
         this.testMode = false;
         this.paused = false;
-        // När träning startas, döljs policy-pilarna
         this.showPolicy = false;
         this.policyButton.style.display = "none";
         this.updateParamInfo();
@@ -994,7 +948,6 @@ $$`;
         requestAnimationFrame((ts) => this.simulationLoop(ts));
       }
     }
-
     window.onload = () => {
       const simulation = new QLearningSimulation();
       MathJax.typeset();
